@@ -1,0 +1,471 @@
+export type Role = 'student' | 'advisor' | 'admin';
+export type CourseType = 'theoretical' | 'practical' | 'hybrid' | 'project';
+export type RiskLabel = 'Easy' | 'Balanced' | 'Hard';
+export type RiskStatus = 'at-risk' | 'monitor' | 'good';
+export type AdmissionTerm = 'fall' | 'spring' | 'summer';
+export type TermType = 'regular' | 'summer';
+
+export interface CourseBlueprint {
+  code: string;
+  name: string;
+  department: string;
+  type: CourseType;
+  isPlannable: boolean;
+  credits: number;
+  prerequisites: string[];
+  concurrentCourses: string[];
+  minimumCompletedCredits?: number;
+  internetDifficulty: number;
+  difficultyBasis: string;
+}
+
+export interface Course extends CourseBlueprint {
+  requirementText: string[];
+  passRate: number;
+  failRate: number;
+  avgGrade: number;
+  enrollmentCount: number;
+  withdrawals: number;
+  diffScore: number;
+  difficultyLabel: RiskLabel;
+  modelVersion: string;
+  lastCalculatedAt: string;
+  dataPoints: number;
+}
+
+export interface HistoricalCourseStat { id: string; courseCode: string; termId: string; avgGrade: number; passRate: number; failRate: number; enrollmentCount: number; withdrawals: number; }
+export interface Recommendation { id: string; title: string; reason: string; action: string; expectedImpact: string; impactDelta: number; }
+export interface EvaluationFactor { label: string; score: number; detail: string; }
+export interface ScheduleEvaluation { id: string; studentId: string; totalScore: number; riskLabel: RiskLabel; totalCredits: number; evaluatedAt: string; modelVersion: string; explanation: string[]; factors: EvaluationFactor[]; recommendations: Recommendation[]; topCourses: string[]; courseCodes?: string[]; termCode?: string; }
+export interface ScheduleDraft { id: string; studentId: string; name: string; courseCodes: string[]; savedAt: string; termCode: string; status: 'draft' | 'submitted' | 'archived'; syncStatus: 'synced' | 'pending' | 'error'; syncError?: string | null; evaluation: ScheduleEvaluation; }
+export interface StudentProfile { id: string; name: string; gpa: number; creditsCompleted: number; department: string; advisorId: string; completedCourseCodes: string[]; admissionYear: number; admissionTerm: AdmissionTerm; }
+export interface ManagedUser {
+  id: string;
+  name: string;
+  role: Role;
+  subtitle: string;
+  initials: string;
+  password: string;
+  status: 'active' | 'inactive';
+  lastLogin: string;
+  email?: string;
+  appUserId?: string;
+  authUserId?: string | null;
+  lastSeenAt?: string | null;
+}
+export interface ImportError { rowNumber: number; reason: string; }
+export interface ImportJob { id: string; fileName: string; format: 'csv' | 'json'; importedRows: number; rejectedRows: number; status: 'completed' | 'completed_with_errors' | 'failed'; validationMessages: string[]; errors: ImportError[]; createdAt: string; }
+export interface StudentInsight extends StudentProfile { difficulty: number; status: RiskStatus; latestEvaluation: ScheduleEvaluation | null; activeDraft: ScheduleDraft | null; }
+export interface SelectionStatus { eligible: boolean; reasons: string[]; wouldExceedCredits: boolean; }
+
+export const DEFAULT_MODEL_VERSION = 'internet-weighted-v2.0.0';
+export const PLANNER_LOCAL_FALLBACK_MODEL_VERSION = 'planner-local-fallback-v1';
+export const MODEL_LAST_CALCULATED_AT = '2026-03-13T10:30:00.000Z';
+export const MAX_SEMESTER_CREDITS = 18;
+export const MAX_SUMMER_CREDITS = 9;
+export const EXTERNAL_PREREQUISITES: Record<string, string> = { '11103': 'Structured Programming', '20133': 'Calculus (2)', '20134': 'Discrete Mathematics (1)', '20233': 'Statistical Methods' };
+export const COURSE_TRENDS: Record<string, { direction: 'up' | 'stable' | 'down'; label: string }> = { '11206': { direction: 'stable', label: 'Stable' }, '11212': { direction: 'up', label: 'Harder' }, '11253': { direction: 'stable', label: 'Stable' }, '11313': { direction: 'up', label: 'Harder' }, '11316': { direction: 'up', label: 'Harder' }, '11323': { direction: 'stable', label: 'Stable' }, '11335': { direction: 'up', label: 'Harder' }, '11354': { direction: 'stable', label: 'Stable' }, '11355': { direction: 'up', label: 'Harder' }, '11391': { direction: 'stable', label: 'Stable' }, '11435': { direction: 'stable', label: 'Stable' }, '11449': { direction: 'down', label: 'Easier' }, '11464': { direction: 'up', label: 'Harder' }, '11493': { direction: 'stable', label: 'Stable' }, '11494': { direction: 'stable', label: 'Stable' }, '12242': { direction: 'down', label: 'Easier' }, '12243': { direction: 'down', label: 'Easier' }, '12343': { direction: 'stable', label: 'Stable' }, '13477': { direction: 'stable', label: 'Stable' }, '14330': { direction: 'up', label: 'Harder' }, '20135': { direction: 'stable', label: 'Stable' }, '20141': { direction: 'stable', label: 'Stable' }, '20142': { direction: 'stable', label: 'Stable' }, '20147': { direction: 'down', label: 'Easier' }, '20333': { direction: 'stable', label: 'Stable' }, '20336': { direction: 'up', label: 'Harder' }, '22241': { direction: 'stable', label: 'Stable' }, '22342': { direction: 'up', label: 'Harder' }, '22541': { direction: 'up', label: 'Harder' } };
+export const KNOWN_HARD_COMBINATIONS = [['11313', '11316'], ['11335', '22541'], ['11335', '11464'], ['14330', '20336'], ['11313', '14330']] as const;
+
+const BASE_COURSES: CourseBlueprint[] = [
+  { code: '11102', name: 'Introduction to Computer Science', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: [], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 24, difficultyBasis: 'PSUT introduces numbering systems, data storage, computer organization, problem-solving, and basic programming here, so it is a light but essential foundation course.' },
+  { code: '11103', name: 'Structured Programming', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: ['11102'], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 48, difficultyBasis: 'PSUT covers core structured-programming concepts, control structures, functions, recursion, arrays, and structures, giving it a moderate foundational coding workload.' },
+  { code: '11151', name: 'Structured Programming Lab', department: 'Computer Science', type: 'practical', isPlannable: true, credits: 1, prerequisites: [], concurrentCourses: ['11103'], minimumCompletedCredits: undefined, internetDifficulty: 26, difficultyBasis: 'PSUT frames this as the hands-on lab companion to Structured Programming, so it is practical and lighter than the lecture course.' },
+  { code: '20132', name: 'Calculus (1)', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: [], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 66, difficultyBasis: 'PSUT describes limits, continuity, derivatives, trigonometric, logarithmic, exponential, hyperbolic functions, and integrals, making it a foundational but demanding math course.' },
+  { code: '20133', name: 'Calculus (2)', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: ['20132'], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 70, difficultyBasis: 'PSUT covers methods and applications of integration plus analytic geometry and series, making it a harder continuation of Calculus (1).' },
+  { code: '20134', name: 'Discrete Mathematics (1)', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: [], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 65, difficultyBasis: 'Foundational logic and proof skills.' },
+  { code: '20200', name: 'Technical Writing and Communication Skills', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: [], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 24, difficultyBasis: 'PSUT positions this as a communication-focused university requirement, so the workload is generally lighter than core technical and math courses.' },
+  { code: '20233', name: 'Statistical Methods', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: [], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 64, difficultyBasis: 'PSUT uses this as the statistics foundation before probability, so it carries moderate mathematical reasoning but less abstraction than the harder upper-level math courses.' },
+  { code: '20234', name: 'Linear Algebra', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: [], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 63, difficultyBasis: 'PSUT lists systems of linear equations, Gaussian elimination, Gauss-Jordan method, and matrix operations, giving it a solid mathematical reasoning load.' },
+  { code: '11206', name: 'Object Oriented Programming', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: ['11103'], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 52, difficultyBasis: 'Moderate OOP abstraction.' },
+  { code: '11212', name: 'Data Structures and Introduction to Algorithms', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: ['20134', '11206'], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 78, difficultyBasis: 'Common CS gatekeeper course.' },
+  { code: '11253', name: 'Object Oriented Programming Lab', department: 'Computer Science', type: 'practical', isPlannable: true, credits: 1, prerequisites: [], concurrentCourses: ['11206'], minimumCompletedCredits: undefined, internetDifficulty: 34, difficultyBasis: 'Hands-on lab.' },
+  { code: '11313', name: 'Algorithms Design and Analysis', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: ['11212'], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 88, difficultyBasis: 'Very hard algorithmic reasoning.' },
+  { code: '11316', name: 'Theory of Computation', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: ['20135', '11206'], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 91, difficultyBasis: 'Highly abstract and proof-heavy.' },
+  { code: '11323', name: 'Database Systems', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: ['11212'], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 62, difficultyBasis: 'Medium database theory.' },
+  { code: '11335', name: 'Operating Systems', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: ['22342', '11212'], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 93, difficultyBasis: 'One of the hardest core CS courses.' },
+  { code: '11354', name: 'Database Systems Lab', department: 'Computer Science', type: 'practical', isPlannable: true, credits: 1, prerequisites: [], concurrentCourses: ['11323'], minimumCompletedCredits: undefined, internetDifficulty: 41, difficultyBasis: 'Focused practical lab.' },
+  { code: '11355', name: 'Operating Systems Lab', department: 'Computer Science', type: 'practical', isPlannable: true, credits: 1, prerequisites: [], concurrentCourses: ['11335'], minimumCompletedCredits: undefined, internetDifficulty: 72, difficultyBasis: 'OS implementation load.' },
+  { code: '11391', name: 'Practical Training', department: 'Computer Science', type: 'practical', isPlannable: true, credits: 3, prerequisites: [], concurrentCourses: [], minimumCompletedCredits: 90, internetDifficulty: 18, difficultyBasis: 'Experience-based.' },
+  { code: '11435', name: 'Data Communications & Computer Networks', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: ['11212'], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 67, difficultyBasis: 'Medium-hard networking.' },
+  { code: '11449', name: 'Computer and Society', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 1, prerequisites: [], concurrentCourses: [], minimumCompletedCredits: 70, internetDifficulty: 22, difficultyBasis: 'Lighter than technical courses.' },
+  { code: '11464', name: 'Information Systems Security', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: ['11435'], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 73, difficultyBasis: 'Moderately hard security concepts.' },
+  { code: '11493', name: 'Graduation Project 1', department: 'Computer Science', type: 'project', isPlannable: true, credits: 1, prerequisites: [], concurrentCourses: [], minimumCompletedCredits: 90, internetDifficulty: 57, difficultyBasis: 'Project planning load.' },
+  { code: '11494', name: 'Graduation Project 2', department: 'Computer Science', type: 'project', isPlannable: true, credits: 2, prerequisites: ['11493'], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 68, difficultyBasis: 'Delivery and integration pressure.' },
+  { code: '12242', name: 'Webpage Design and Internet programming LAB', department: 'Computer Science', type: 'practical', isPlannable: true, credits: 1, prerequisites: [], concurrentCourses: ['12243'], minimumCompletedCredits: undefined, internetDifficulty: 37, difficultyBasis: 'Implementation-focused web lab.' },
+  { code: '12243', name: 'Webpage Design and Internet programming', department: 'Computer Science', type: 'hybrid', isPlannable: true, credits: 3, prerequisites: ['11206'], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 49, difficultyBasis: 'Conceptual plus practical web course.' },
+  { code: '12343', name: 'Visual Programming', department: 'Computer Science', type: 'hybrid', isPlannable: true, credits: 3, prerequisites: ['11206'], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 56, difficultyBasis: 'Moderate UI and implementation work.' },
+  { code: '13477', name: 'Software Engineering', department: 'Computer Science', type: 'hybrid', isPlannable: true, credits: 3, prerequisites: ['11323'], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 64, difficultyBasis: 'Process and design overhead.' },
+  { code: '14330', name: 'Artificial Intelligence', department: 'Computer Science', type: 'hybrid', isPlannable: true, credits: 3, prerequisites: ['11212'], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 82, difficultyBasis: 'Search, logic, and probability make it hard.' },
+  { code: '20135', name: 'Discrete Mathematics (2)', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: ['20134'], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 74, difficultyBasis: 'Proof and logic heavy.' },
+  { code: '20141', name: 'Physics (1)', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: [], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 61, difficultyBasis: 'Moderate problem-solving science course.' },
+  { code: '20142', name: 'Physics (2)', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: ['20141'], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 68, difficultyBasis: 'Harder continuation of Physics 1.' },
+  { code: '20147', name: 'Physics Lab', department: 'Computer Science', type: 'practical', isPlannable: true, credits: 0, prerequisites: [], concurrentCourses: ['20141'], minimumCompletedCredits: undefined, internetDifficulty: 24, difficultyBasis: 'Procedural science lab.' },
+  { code: '20333', name: 'Numerical Analysis', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: ['20133'], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 72, difficultyBasis: 'Applied math and approximation.' },
+  { code: '20336', name: 'Principles of Probability', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: ['20133', '20233'], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 76, difficultyBasis: 'Symbolic probability is often hard.' },
+  { code: '22241', name: 'Digital Logic Design', department: 'Computer Science', type: 'hybrid', isPlannable: true, credits: 3, prerequisites: [], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 66, difficultyBasis: 'Binary and hardware reasoning.' },
+  { code: '22342', name: 'Computer Organization and Assembly Language', department: 'Computer Science', type: 'hybrid', isPlannable: true, credits: 3, prerequisites: ['22241'], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 84, difficultyBasis: 'Low-level systems thinking and assembly.' },
+  { code: '22541', name: 'Computer Architecture', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: ['22342'], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 89, difficultyBasis: 'Deep hardware and performance reasoning.' },
+  { code: '31112', name: 'Arabic Language Communication Skills', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: [], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 22, difficultyBasis: 'PSUT describes this as a communication-skills course in reading, writing, listening, and speaking, which is lighter than the major technical sequence.' },
+  { code: '31122', name: 'English Language Communication Skills', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: [], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 28, difficultyBasis: 'PSUT focuses this course on reading, writing, speaking, and listening for academic communication, so it carries moderate language-practice work but low technical difficulty.' },
+  { code: '31151', name: 'National Education', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: [], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 18, difficultyBasis: 'PSUT frames this as a civic and national-awareness course, making it substantially lighter than the core CS and mathematics requirements.' },
+  { code: '31160', name: 'Leadership and Societal Responsibility', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 0, prerequisites: [], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 8, difficultyBasis: 'PSUT presents leadership frameworks, ethics, and social responsibility here, and the study plan lists it as a zero-credit requirement with minimal academic load.' },
+  { code: '31251', name: 'Military Science', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: [], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 16, difficultyBasis: 'PSUT treats Military Science as a general university requirement rather than a technical course, so it is lighter than the major sequence.' },
+  { code: '31254', name: 'Entrepreneurship and Innovation', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: [], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 26, difficultyBasis: 'PSUT describes entrepreneurship, competitive environments, and venture creation concepts, giving it moderate conceptual work but low mathematical or systems complexity.' },
+  { code: '31374', name: 'Life Skills', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: [], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 15, difficultyBasis: 'PSUT frames Life Skills as a practical personal-development requirement, which makes it lighter than the program core.' },
+  { code: 'EUNI-01', name: 'Elective University Requirement', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: [], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 35, difficultyBasis: 'Placeholder study-plan slot for a university elective; actual difficulty depends on the chosen elective course.' },
+  { code: 'EUNI-02', name: 'Elective University Requirement', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: [], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 35, difficultyBasis: 'Placeholder study-plan slot for a university elective; actual difficulty depends on the chosen elective course.' },
+  { code: 'EUNI-03', name: 'Elective University Requirement', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: [], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 35, difficultyBasis: 'Placeholder study-plan slot for a university elective; actual difficulty depends on the chosen elective course.' },
+  { code: 'EPRG-01', name: 'Elective Program Requirement', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: [], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 45, difficultyBasis: 'Placeholder study-plan slot for a program elective; actual difficulty depends on the chosen elective course.' },
+  { code: 'EPRG-02', name: 'Elective Program Requirement', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: [], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 45, difficultyBasis: 'Placeholder study-plan slot for a program elective; actual difficulty depends on the chosen elective course.' },
+  { code: 'EPRG-03', name: 'Elective Program Requirement', department: 'Computer Science', type: 'theoretical', isPlannable: true, credits: 3, prerequisites: [], concurrentCourses: [], minimumCompletedCredits: undefined, internetDifficulty: 45, difficultyBasis: 'Placeholder study-plan slot for a program elective; actual difficulty depends on the chosen elective course.' }
+];
+
+export const SEED_MANAGED_USERS: ManagedUser[] = [
+  { id: '20231001', name: 'Ahmad Hassan', role: 'student', subtitle: 'Student | Computer Science', initials: 'AH', password: 'Student@123', status: 'active', lastLogin: '2026-03-13T07:55:00.000Z', email: 'ahmad.hassan@example.edu', lastSeenAt: null },
+  { id: '20221045', name: 'Omar Al-Rashid', role: 'student', subtitle: 'Student | Computer Science', initials: 'OR', password: 'Student@123', status: 'active', lastLogin: '2026-03-12T10:22:00.000Z', email: 'omar.alrashid@example.edu', lastSeenAt: null },
+  { id: '20221188', name: 'Sara Khalil', role: 'student', subtitle: 'Student | Computer Science', initials: 'SK', password: 'Student@123', status: 'active', lastLogin: '2026-03-12T08:18:00.000Z', email: 'sara.khalil@example.edu', lastSeenAt: null },
+  { id: '20220877', name: 'Lina Nasser', role: 'student', subtitle: 'Student | Computer Science', initials: 'LN', password: 'Student@123', status: 'active', lastLogin: '2026-03-11T11:10:00.000Z', email: 'lina.nasser@example.edu', lastSeenAt: null },
+  { id: 'ADV-1001', name: 'Prof. Layla Hamdan', role: 'advisor', subtitle: 'Academic Advisor | CS Department', initials: 'LH', password: 'Advisor@123', status: 'active', lastLogin: '2026-03-13T08:50:00.000Z', email: 'layla.hamdan@example.edu', lastSeenAt: null },
+  { id: 'ADV-1002', name: 'Dr. Mona Issa', role: 'advisor', subtitle: 'Academic Advisor | CS Department', initials: 'MI', password: 'Advisor@123', status: 'active', lastLogin: '2026-03-12T13:32:00.000Z', email: 'mona.issa@example.edu', lastSeenAt: null },
+  { id: 'ADM-1001', name: 'Dr. Anas Abu Taleb', role: 'admin', subtitle: 'System Administrator', initials: 'AT', password: 'Admin@123', status: 'active', lastLogin: '2026-03-13T09:14:00.000Z', email: 'anas.abutaleb@example.edu', lastSeenAt: null },
+  { id: 'ADM-1002', name: 'Eng. Rana Shoman', role: 'admin', subtitle: 'Registrar Operations Admin', initials: 'RS', password: 'Admin@123', status: 'active', lastLogin: '2026-03-12T14:08:00.000Z', email: 'rana.shoman@example.edu', lastSeenAt: null }
+];
+
+export const STUDENT_PROFILES: StudentProfile[] = [
+  { id: '20231001', name: 'Ahmad Hassan', gpa: 3.12, creditsCompleted: 74, department: 'Computer Science', advisorId: 'ADV-1001', completedCourseCodes: ['11103', '20134', '11206', '11253', '11212', '11313', '11316', '11323', '11354', '12242', '12243', '12343', '20135', '20141', '20142', '20147', '20233', '22241', '22342', '31374', '31251', '31151', '31112', '31254', '31122', 'EUNI-01', 'EUNI-02', '11494'], admissionYear: 2023, admissionTerm: 'fall' },
+  { id: '20221045', name: 'Omar Al-Rashid', gpa: 2.84, creditsCompleted: 88, department: 'Computer Science', advisorId: 'ADV-1001', completedCourseCodes: ['11103', '20134', '11206', '11253', '11212', '11313', '11316', '11323', '11354', '11435', '12243', '12242', '12343', '14330', '20135', '20141', '20142', '20147', '20333', '22241', '22342', '22541', '31374', '31251', '31151', '31112', '31254', '31122', 'EUNI-01', 'EUNI-02', 'EUNI-03', '11102', '11151'], admissionYear: 2022, admissionTerm: 'fall' },
+  { id: '20221188', name: 'Sara Khalil', gpa: 2.96, creditsCompleted: 84, department: 'Computer Science', advisorId: 'ADV-1001', completedCourseCodes: ['11103', '20134', '11206', '11253', '11212', '11323', '11435', '12243', '20135', '20141', '20142', '20147', '20333', '22241', '22342', '31374', '31251', '31151', '31112', '31254', '31122', 'EUNI-01', 'EUNI-02', 'EUNI-03', '11102', '20200', '20234', '20233', '20132', '11494'], admissionYear: 2022, admissionTerm: 'fall' },
+  { id: '20220877', name: 'Lina Nasser', gpa: 3.16, creditsCompleted: 92, department: 'Computer Science', advisorId: 'ADV-1001', completedCourseCodes: ['11103', '20134', '11206', '11253', '11212', '11313', '11316', '11323', '11335', '11354', '11355', '11435', '11449', '12243', '12242', '12343', '13477', '14330', '20135', '20141', '20142', '20147', '20333', '20336', '22241', '22342', '22541', '31374', '31251', '31151', '31112', '31254', '31122', 'EUNI-01', 'EUNI-02'], admissionYear: 2022, admissionTerm: 'fall' },
+  { id: '20220432', name: 'Karim Haddad', gpa: 3.36, creditsCompleted: 101, department: 'Computer Science', advisorId: 'ADV-1002', completedCourseCodes: ['11103', '20134', '11206', '11253', '11212', '11313', '11316', '11323', '11335', '11354', '11355', '11391', '11435', '11449', '11464', '11493', '12243', '12242', '12343', '13477', '14330', '20135', '20141', '20142', '20147', '20333', '20336', '22241', '22342', '22541', '31374', '31251', '31151', '31112', '31254', '31122', 'EUNI-01', 'EUNI-02', '11494'], admissionYear: 2022, admissionTerm: 'fall' },
+  { id: '20221302', name: 'Nour Saleh', gpa: 3.44, creditsCompleted: 76, department: 'Computer Science', advisorId: 'ADV-1002', completedCourseCodes: ['11103', '20134', '11206', '11253', '11212', '11323', '11435', '12243', '20135', '20141', '20147', '22241', '22342', '31374', '31251', '31151', '31112', '31254', '31122', 'EUNI-01', 'EUNI-02', 'EUNI-03', '11102', '20200', '20234', '20233', '20132'], admissionYear: 2022, admissionTerm: 'fall' },
+  { id: '20220665', name: 'Yousef Barakat', gpa: 3.04, creditsCompleted: 82, department: 'Computer Science', advisorId: 'ADV-1002', completedCourseCodes: ['11103', '20134', '11206', '11253', '11212', '11313', '11323', '11435', '12243', '20135', '20141', '20142', '20147', '20333', '22241', '22342', '31374', '31251', '31151', '31112', '31254', '31122', 'EUNI-01', 'EUNI-02', 'EUNI-03', '11102', '20200', '20234', '20233'], admissionYear: 2022, admissionTerm: 'fall' }
+];
+
+const DEMO_PROFILE_TEMPLATES = STUDENT_PROFILES.map((profile) => ({
+  gpa: profile.gpa,
+  creditsCompleted: profile.creditsCompleted,
+  department: profile.department,
+  completedCourseCodes: [...profile.completedCourseCodes],
+  admissionYear: profile.admissionYear,
+  admissionTerm: profile.admissionTerm,
+}));
+
+export const STUDENT_PLAN_SEEDS: Record<string, string[]> = {
+  '20231001': ['11335', '11355', '11449', '13477', '14330', '20333'],
+  '20221045': ['11335', '11355', '11464', '13477', '22541', '20336'],
+  '20221188': ['11313', '11316', '14330', '22541', '20336', '11435'],
+  '20220877': ['11391', '11493', '13477', '11464', '12343'],
+  '20220432': ['11494', '11464', '13477', '11449'],
+  '20221302': ['12243', '12242', '12343', '11449', '22541'],
+  '20220665': ['11335', '11435', '14330', '20336', '22541']
+};
+
+export const PAST_SEMESTER_GPA = [{ label: 'S21', gpa: 3.1 }, { label: 'F21', gpa: 3.25 }, { label: 'S22', gpa: 3.18 }, { label: 'F22', gpa: 3.34 }, { label: 'S23', gpa: 3.38 }, { label: 'F23', gpa: 3.42 }];
+const TYPE_WEIGHT: Record<CourseType, number> = { theoretical: 66, practical: 36, hybrid: 54, project: 74 };
+const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
+const average = (values: number[]) => values.length === 0 ? 0 : values.reduce((sum, value) => sum + value, 0) / values.length;
+const createId = (prefix: string, seed: string) => `${prefix}-${seed.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()}`;
+function getTrendAdjustment(courseCode: string) { const trend = COURSE_TRENDS[courseCode]; if (!trend) return 0; if (trend.direction === 'up') return 3; if (trend.direction === 'down') return -3; return 0; }
+export function getInitials(name: string) { return name.split(' ').filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase() ?? '').join(''); }
+function hashSeedToIndex(seed: string, size: number) { if (size <= 0) return 0; const hash = seed.split('').reduce((sum, character, index) => sum + character.charCodeAt(0) * (index + 1), 0); return hash % size; }
+export function buildDemoStudentProfile(student: Pick<ManagedUser, 'id' | 'name'>, advisorId: string | null, templateIndex?: number): StudentProfile {
+  const template = DEMO_PROFILE_TEMPLATES[templateIndex ?? hashSeedToIndex(student.id, DEMO_PROFILE_TEMPLATES.length)] ?? DEMO_PROFILE_TEMPLATES[0];
+  return { id: student.id, name: student.name, gpa: template.gpa, creditsCompleted: template.creditsCompleted, department: template.department, advisorId: advisorId ?? '', completedCourseCodes: [...template.completedCourseCodes], admissionYear: template.admissionYear, admissionTerm: template.admissionTerm };
+}
+export function getCourseName(code: string) { return BASE_COURSES.find((course) => course.code === code)?.name ?? EXTERNAL_PREREQUISITES[code] ?? code; }
+export function formatRequirementText(course: Pick<CourseBlueprint, 'prerequisites' | 'concurrentCourses' | 'minimumCompletedCredits'>) { const lines: string[] = []; course.prerequisites.forEach((code) => lines.push(`Prerequisite: ${getCourseName(code)}`)); course.concurrentCourses.forEach((code) => lines.push(`Concurrent: ${getCourseName(code)}`)); if (course.minimumCompletedCredits) lines.push(`Complete ${course.minimumCompletedCredits} credit hours`); return lines; }
+export function getTermTypeFromCode(termCode: string): TermType {
+  return /summer/i.test(termCode) ? 'summer' : 'regular';
+}
+export function getCreditLimitForTermCode(termCode: string) {
+  return getTermTypeFromCode(termCode) === 'summer' ? MAX_SUMMER_CREDITS : MAX_SEMESTER_CREDITS;
+}
+export function formatTermLabel(termCode: string) {
+  if (!termCode) return '-';
+  const [year, rawTerm] = termCode.split('-');
+  if (!year || !rawTerm) return termCode;
+  const normalized = rawTerm.toLowerCase();
+  const pretty = normalized === 'fall' ? 'Fall' : normalized === 'spring' ? 'Spring' : normalized === 'summer' ? 'Summer' : rawTerm;
+  return `${pretty} ${year}`;
+}
+
+export function formatCompactTermLabel(termCode: string) {
+  if (!termCode) return '-';
+  const [year, rawTerm] = termCode.split('-');
+  if (!year || !rawTerm) return termCode;
+  const normalized = rawTerm.toLowerCase();
+  const termNumber = normalized === 'fall' ? '1' : normalized === 'spring' ? '2' : normalized === 'summer' ? '3' : null;
+  return termNumber ? `${year}-${termNumber}` : termCode;
+}
+function getAdmissionTermOrder(term: AdmissionTerm) {
+  return term === 'spring' ? 1 : term === 'summer' ? 2 : 3;
+}
+
+function getTermOrderFromCode(termCode: string) {
+  const normalized = termCode.split('-')[1]?.toLowerCase();
+  return normalized === 'spring' ? 1 : normalized === 'summer' ? 2 : normalized === 'fall' ? 3 : 0;
+}
+
+function getTermRank(termCode: string) {
+  const [yearString, rawTerm] = termCode.split('-');
+  const year = Number(yearString);
+  const order = getTermOrderFromCode(`${yearString}-${rawTerm ?? ''}`);
+  return year * 10 + order;
+}
+export function compareTermCodesNewestFirst(left: string, right: string) {
+  return getTermRank(right) - getTermRank(left);
+}
+
+function isTermOnOrAfterAdmission(termCode: string, admissionYear: number, admissionTerm: AdmissionTerm) {
+  const [yearString] = termCode.split('-');
+  const year = Number(yearString);
+  if (year > admissionYear) {
+    return true;
+  }
+  if (year < admissionYear) {
+    return false;
+  }
+  return getTermOrderFromCode(termCode) >= getAdmissionTermOrder(admissionTerm);
+}
+
+function getTermOption(term: AdmissionTerm, year: number) {
+  return {
+    termCode: `${year}-${term === 'fall' ? 'Fall' : term === 'spring' ? 'Spring' : 'Summer'}`,
+    termType: term === 'summer' ? 'summer' as const : 'regular' as const,
+  };
+}
+
+export function resolveCurrentAcademicTerm(date = new Date()) {
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  if (month >= 10 || month === 9) {
+    return { term: 'fall' as const, year };
+  }
+
+  if (month === 1 || (month === 2 && day <= 15)) {
+    return { term: 'fall' as const, year: year - 1 };
+  }
+
+  if (
+    (month === 2 && day >= 16)
+    || month === 3
+    || month === 4
+    || month === 5
+    || (month === 6 && day <= 15)
+  ) {
+    return { term: 'spring' as const, year };
+  }
+
+  if (
+    (month === 6 && day >= 16)
+    || month === 7
+    || month === 8
+  ) {
+    return { term: 'summer' as const, year };
+  }
+
+  return { term: 'fall' as const, year };
+}
+
+export function resolveNextRegisterableAcademicTerm(date = new Date()) {
+  const current = resolveCurrentAcademicTerm(date);
+  if (current.term === 'spring') {
+    return getTermOption('summer', current.year);
+  }
+  if (current.term === 'summer') {
+    return getTermOption('fall', current.year);
+  }
+  return getTermOption('spring', current.year + 1);
+}
+
+export function buildRegisterableTerms(admissionYear: number, admissionTerm: AdmissionTerm, date = new Date()) {
+  const nextTerm = resolveNextRegisterableAcademicTerm(date);
+  if (isTermOnOrAfterAdmission(nextTerm.termCode, admissionYear, admissionTerm)) {
+    return [nextTerm];
+  }
+
+  for (let year = admissionYear; year <= admissionYear + 12; year += 1) {
+    for (const term of ['spring', 'summer', 'fall'] as const) {
+      const option = getTermOption(term, year);
+      if (isTermOnOrAfterAdmission(option.termCode, admissionYear, admissionTerm)) {
+        return [option];
+      }
+    }
+  }
+
+  return [nextTerm];
+}
+
+export function buildAvailableTerms(admissionYear: number, admissionTerm: AdmissionTerm, endYear = new Date().getFullYear() + 1) {
+  const allTerms: { termCode: string; termType: TermType }[] = [];
+  const termSequence: AdmissionTerm[] = ['fall', 'spring', 'summer'];
+  const admissionOffset = termSequence.indexOf(admissionTerm);
+  for (let year = admissionYear; year <= endYear; year += 1) {
+    allTerms.push(
+      { termCode: `${year}-Fall`, termType: 'regular' },
+      { termCode: `${year}-Spring`, termType: 'regular' },
+      { termCode: `${year}-Summer`, termType: 'summer' }
+    );
+  }
+  return allTerms
+    .filter((term) => {
+      const [yearString, season] = term.termCode.split('-');
+      const seasonIndex = termSequence.indexOf(season.toLowerCase() as AdmissionTerm);
+      return Number(yearString) > admissionYear || seasonIndex >= admissionOffset;
+    })
+    .sort((left, right) => getTermRank(left.termCode) - getTermRank(right.termCode));
+}
+export function getDiffLabel(score: number) {
+  if (score >= 70) return { label: 'Hard' as const, cls: 'bg-red-100 text-red-700', color: '#dc2626', barColor: 'bg-red-500' };
+  if (score >= 45) return { label: 'Balanced' as const, cls: 'bg-amber-100 text-amber-700', color: '#d97706', barColor: 'bg-amber-500' };
+  return { label: 'Easy' as const, cls: 'bg-emerald-100 text-emerald-700', color: '#059669', barColor: 'bg-emerald-500' };
+}
+export function getStatusStyle(status: RiskStatus) { if (status === 'at-risk') return 'bg-red-100 text-red-700'; if (status === 'monitor') return 'bg-amber-100 text-amber-700'; return 'bg-emerald-100 text-emerald-700'; }
+export function getStatusLabel(status: RiskStatus) { if (status === 'at-risk') return 'At Risk'; if (status === 'monitor') return 'Monitor'; return 'Good'; }
+
+function deriveMetricsFromInternetDifficulty(course: CourseBlueprint, termShift: number) {
+  const avgGrade = clamp(94 - course.internetDifficulty * 0.34 + termShift, 52, 95);
+  const passRate = clamp(97 - course.internetDifficulty * 0.44 + termShift, 44, 98);
+  const withdrawalBase = Math.round(course.internetDifficulty / 12) + (course.type === 'project' ? 2 : 0);
+  const enrollmentBase = course.type === 'theoretical' ? 120 : course.type === 'hybrid' ? 96 : 78;
+  const failRate = clamp(100 - passRate - (course.type === 'practical' ? 7 : 9), 2, 34);
+  return { avgGrade: Math.round(avgGrade), passRate: Math.round(passRate), failRate: Math.round(failRate), enrollmentCount: enrollmentBase + termShift * 3, withdrawals: clamp(withdrawalBase + termShift, 0, 18) };
+}
+
+export function buildSeedHistoricalStats() {
+  return BASE_COURSES.flatMap((course, index) => {
+    const shifts = [-2 + (index % 3), 2 - (index % 2)];
+    return ['2024-Fall', '2025-Spring'].map((termId, termIndex) => ({ id: createId('stat', `${course.code}-${termId}`), courseCode: course.code, termId, ...deriveMetricsFromInternetDifficulty(course, shifts[termIndex] ?? 0) }));
+  });
+}
+export const SEED_HISTORICAL_STATS = buildSeedHistoricalStats();
+
+function aggregateStats(courseCode: string, stats: HistoricalCourseStat[], fallback?: Course) {
+  const rows = stats.filter((item) => item.courseCode === courseCode);
+  if (rows.length === 0 && fallback) return { avgGrade: fallback.avgGrade, passRate: fallback.passRate, failRate: fallback.failRate, enrollmentCount: fallback.enrollmentCount, withdrawals: fallback.withdrawals, dataPoints: fallback.dataPoints };
+  if (rows.length === 0) return { avgGrade: 75, passRate: 78, failRate: 12, enrollmentCount: 60, withdrawals: 2, dataPoints: 0 };
+  return { avgGrade: Math.round(average(rows.map((item) => item.avgGrade))), passRate: Math.round(average(rows.map((item) => item.passRate))), failRate: Math.round(average(rows.map((item) => item.failRate))), enrollmentCount: Math.round(average(rows.map((item) => item.enrollmentCount))), withdrawals: Math.round(average(rows.map((item) => item.withdrawals))), dataPoints: rows.length };
+}
+
+export function computeCourseDifficulty(course: CourseBlueprint, stats: Pick<Course, 'avgGrade' | 'passRate' | 'failRate' | 'enrollmentCount' | 'withdrawals'>) {
+  const gradeFactor = 100 - stats.avgGrade;
+  const passFactor = 100 - stats.passRate;
+  const withdrawalRate = stats.enrollmentCount === 0 ? 0 : (stats.withdrawals / stats.enrollmentCount) * 100;
+  const withdrawalFactor = clamp(withdrawalRate * 2.1, 0, 22);
+  const creditFactor = clamp((course.credits / 4) * 100, 0, 100);
+  const typeFactor = TYPE_WEIGHT[course.type];
+  const statsDerived = clamp(gradeFactor * 0.32 + passFactor * 0.3 + withdrawalFactor * 0.12 + creditFactor * 0.12 + typeFactor * 0.14, 0, 100);
+  return Math.round(clamp(course.internetDifficulty * 0.72 + statsDerived * 0.25 + getTrendAdjustment(course.code), 0, 100));
+}
+
+export function buildCourses(stats: HistoricalCourseStat[], modelVersion = DEFAULT_MODEL_VERSION, lastCalculatedAt = MODEL_LAST_CALCULATED_AT, existingCourses: Course[] = []) {
+  const extraBlueprints = existingCourses.filter((course) => !BASE_COURSES.some((baseCourse) => baseCourse.code === course.code)).map((course) => ({ code: course.code, name: course.name, department: course.department, type: course.type, isPlannable: course.isPlannable ?? true, credits: course.credits, prerequisites: course.prerequisites ?? [], concurrentCourses: course.concurrentCourses ?? [], minimumCompletedCredits: course.minimumCompletedCredits, internetDifficulty: course.internetDifficulty ?? course.diffScore ?? 50, difficultyBasis: course.difficultyBasis ?? 'Manual course entry.' }));
+  return [...BASE_COURSES, ...extraBlueprints].map((course) => {
+    const previous = existingCourses.find((item) => item.code === course.code);
+    const aggregated = aggregateStats(course.code, stats, previous);
+    const diffScore = computeCourseDifficulty(course, aggregated);
+    return { ...course, requirementText: formatRequirementText(course), ...aggregated, diffScore, difficultyLabel: getDiffLabel(diffScore).label, modelVersion, lastCalculatedAt } satisfies Course;
+  });
+}
+export const COURSES = buildCourses(SEED_HISTORICAL_STATS);
+
+export function getCourseSelectionStatus(course: Course, completedCourseCodes: string[], selectedCourseCodes: string[], completedCredits: number, allCourses: Course[], maxCredits = MAX_SEMESTER_CREDITS): SelectionStatus {
+  const reasons: string[] = [];
+  const selectedSet = new Set(selectedCourseCodes);
+  const completedSet = new Set(completedCourseCodes);
+  const totalSelectedCredits = allCourses.filter((item) => selectedSet.has(item.code)).reduce((sum, item) => sum + item.credits, 0);
+  if (!course.isPlannable) reasons.push('This course is tracked in the transcript catalog and cannot be selected in the planner.');
+  const missingPrerequisites = course.prerequisites.filter((code) => !completedSet.has(code));
+  if (missingPrerequisites.length > 0) reasons.push(`Missing prerequisite${missingPrerequisites.length > 1 ? 's' : ''}: ${missingPrerequisites.map(getCourseName).join(', ')}.`);
+  const missingConcurrent = course.concurrentCourses.filter((code) => !completedSet.has(code) && !selectedSet.has(code));
+  if (missingConcurrent.length > 0) reasons.push(`Requires concurrent course${missingConcurrent.length > 1 ? 's' : ''}: ${missingConcurrent.map(getCourseName).join(', ')}.`);
+  if (course.minimumCompletedCredits && completedCredits < course.minimumCompletedCredits) reasons.push(`Requires ${course.minimumCompletedCredits} completed credit hours. You currently have ${completedCredits}.`);
+  const wouldExceedCredits = totalSelectedCredits + course.credits > maxCredits;
+  if (wouldExceedCredits) reasons.push(`Maximum semester load is ${maxCredits} credit hours.`);
+  return { eligible: reasons.length === 0, reasons, wouldExceedCredits };
+}
+function buildTopCourseStrings(selectedCourses: Course[]) { return [...selectedCourses].sort((left, right) => right.diffScore - left.diffScore).slice(0, 3).map((course) => `${course.code} ${course.name}`); }
+function isEligibleAlternative(candidate: Course, completedCourseCodes: string[], selectedCourseCodes: string[], completedCredits: number, allCourses: Course[]) { return getCourseSelectionStatus(candidate, completedCourseCodes, selectedCourseCodes, completedCredits, allCourses).eligible; }
+function findAlternativeCourse(sourceCourse: Course, allCourses: Course[], selectedCodes: Set<string>, completedCourseCodes: string[], completedCredits: number, selectedCourses: Course[]) {
+  const currentWithoutSource = selectedCourses.filter((course) => course.code !== sourceCourse.code).map((course) => course.code);
+  return allCourses.filter((candidate) => candidate.isPlannable && candidate.code !== sourceCourse.code && !selectedCodes.has(candidate.code)).filter((candidate) => candidate.type === sourceCourse.type || candidate.type === 'hybrid' || sourceCourse.type === 'hybrid').filter((candidate) => isEligibleAlternative(candidate, completedCourseCodes, [...currentWithoutSource, candidate.code], completedCredits, allCourses)).sort((left, right) => left.diffScore - right.diffScore)[0];
+}
+
+export function buildMockPlannerAiEvaluation(studentId: string, selectedCourses: Course[], allCourses: Course[], _modelVersion: string, completedCourseCodes: string[] = [], completedCredits = 0, evaluatedAt = new Date().toISOString()): ScheduleEvaluation | null {
+  if (selectedCourses.length === 0) return null;
+  const totalCredits = selectedCourses.reduce((sum, course) => sum + course.credits, 0);
+  const averageDifficulty = average(selectedCourses.map((course) => course.diffScore));
+  const hardCourses = selectedCourses.filter((course) => course.diffScore >= 70);
+  const theoryCourses = selectedCourses.filter((course) => course.type === 'theoretical').length;
+  const practicalCourses = selectedCourses.filter((course) => course.type === 'practical').length;
+  const hybridCourses = selectedCourses.filter((course) => course.type === 'hybrid').length;
+  const projectCourses = selectedCourses.filter((course) => course.type === 'project').length;
+  const comboHits = KNOWN_HARD_COMBINATIONS.filter((pair) => pair.every((courseCode) => selectedCourses.some((course) => course.code === courseCode)));
+  const creditPenalty = clamp((totalCredits - 12) * 4.8, 0, 26);
+  const hardPenalty = clamp(hardCourses.length * 6.5, 0, 24);
+  const mixPenalty = clamp(Math.abs(theoryCourses - (practicalCourses + hybridCourses)) * 3 + projectCourses * 3, 0, 18);
+  const comboPenalty = comboHits.length * 6;
+  const totalScore = Math.round(clamp(averageDifficulty * 0.68 + creditPenalty + hardPenalty + mixPenalty + comboPenalty, 0, 100));
+  const riskLabel = getDiffLabel(totalScore).label;
+  const termCreditCap = totalCredits <= MAX_SUMMER_CREDITS ? MAX_SUMMER_CREDITS : MAX_SEMESTER_CREDITS;
+  const factors: EvaluationFactor[] = [
+    { label: 'AI workload estimate', score: Math.round(averageDifficulty), detail: `${hardCourses.length} course(s) are contributing notable workload pressure` },
+    { label: 'Credit load', score: Math.round(creditPenalty), detail: `${totalCredits} credits selected out of ${termCreditCap}` },
+    { label: 'Course-type balance', score: Math.round(mixPenalty), detail: `${theoryCourses} theory, ${hybridCourses} hybrid, ${practicalCourses} practical, ${projectCourses} project` },
+    { label: 'Pattern flags', score: comboPenalty, detail: comboHits.length > 0 ? comboHits.map((pair) => pair.join(' + ')).join(', ') : 'No flagged combinations' }
+  ];
+  const explanation = [
+    `${hardCourses.length} course(s) in this schedule are reading as higher-effort options.`,
+    totalCredits > 15 ? `The current plan is approaching the regular-term ceiling with ${totalCredits} selected credits.` : 'The selected credit load looks manageable for this planning pass.',
+    theoryCourses >= selectedCourses.length - 1 ? 'This schedule is theory-heavy, which usually raises weekly study intensity.' : 'This schedule has a healthier mix of course types.',
+    comboHits.length > 0 ? `The review flagged known difficult pairings: ${comboHits.map((pair) => pair.join(' + ')).join(', ')}.` : 'The review did not detect any configured hard-course pairings.'
+  ];
+  const selectedCodes = new Set(selectedCourses.map((course) => course.code));
+  const recommendations: Recommendation[] = [];
+  if (riskLabel === 'Hard') {
+    const hardestCourse = [...hardCourses].sort((left, right) => right.diffScore - left.diffScore)[0];
+    if (hardestCourse) {
+      const alternative = findAlternativeCourse(hardestCourse, allCourses, selectedCodes, completedCourseCodes, completedCredits, selectedCourses);
+      recommendations.push({ id: createId('rec', `${studentId}-${hardestCourse.code}`), title: `Swap ${hardestCourse.code} for a lighter eligible course`, reason: `${hardestCourse.code} is a major workload driver in this review.`, action: alternative ? `Replace it with ${alternative.code} ${alternative.name}.` : `Move ${hardestCourse.code} to a future term and choose a lighter eligible course.`, expectedImpact: alternative ? `Estimated AI score reduction: ${Math.max(hardestCourse.diffScore - alternative.diffScore - 5, 6)} points.` : 'Estimated AI score reduction: 8 to 12 points.', impactDelta: alternative ? Math.max(hardestCourse.diffScore - alternative.diffScore - 5, 6) : 10 });
+    }
+    const lighterEligibleCourses = allCourses.filter((course) => course.isPlannable && !selectedCodes.has(course.code)).filter((course) => isEligibleAlternative(course, completedCourseCodes, [...selectedCodes, course.code], completedCredits, allCourses)).sort((left, right) => left.diffScore - right.diffScore).slice(0, 3);
+    if (lighterEligibleCourses.length > 0) recommendations.push({ id: createId('rec', `${studentId}-lighter`), title: 'Consider lower-difficulty eligible options', reason: 'The review found easier alternatives you already qualify for.', action: `Examples: ${lighterEligibleCourses.map((course) => `${course.code} ${course.name}`).join(', ')}.`, expectedImpact: 'Expected impact: lower cumulative workload.', impactDelta: 7 });
+  }
+  if (totalCredits > 15) recommendations.push({ id: createId('rec', `${studentId}-credits`), title: 'Reduce total credits', reason: 'The total load is acting as a pressure multiplier.', action: 'Move one 3-credit course to the next term if possible.', expectedImpact: `Estimated AI score reduction: ${Math.round(creditPenalty * 0.7)} points.`, impactDelta: Math.round(creditPenalty * 0.7) });
+  if (theoryCourses > practicalCourses + hybridCourses) recommendations.push({ id: createId('rec', `${studentId}-balance`), title: 'Rebalance course types', reason: 'The current draft is theory-heavy.', action: 'Swap one theory-heavy course for a practical or hybrid option if available.', expectedImpact: 'Expected impact: smoother weekly workload.', impactDelta: 6 });
+  if (recommendations.length === 0) recommendations.push({ id: createId('rec', `${studentId}-keep`), title: 'Schedule is manageable', reason: 'This plan looks balanced across workload, credits, and course mix.', action: 'Keep the draft and review prerequisites before saving.', expectedImpact: 'No immediate balancing action is required.', impactDelta: 0 });
+  return { id: createId('eval', `${studentId}-${evaluatedAt}`), studentId, totalScore, riskLabel, totalCredits, evaluatedAt, modelVersion: PLANNER_LOCAL_FALLBACK_MODEL_VERSION, explanation, factors, recommendations, topCourses: buildTopCourseStrings(selectedCourses), courseCodes: selectedCourses.map((course) => course.code) };
+}
+
+export function evaluateSchedule(studentId: string, selectedCourses: Course[], allCourses: Course[], modelVersion: string, completedCourseCodes: string[] = [], completedCredits = 0, evaluatedAt = new Date().toISOString()): ScheduleEvaluation | null {
+  return buildMockPlannerAiEvaluation(
+    studentId,
+    selectedCourses,
+    allCourses,
+    modelVersion,
+    completedCourseCodes,
+    completedCredits,
+    evaluatedAt
+  );
+}
+
+export function buildSeedDrafts(_courses: Course[]) {
+  return [] as ScheduleDraft[];
+}
+
+export function buildStudentInsights(profiles: StudentProfile[], drafts: ScheduleDraft[]): StudentInsight[] {
+  return profiles.map((profile) => {
+    const studentDrafts = drafts.filter((draft) => draft.studentId === profile.id).sort((left, right) => right.savedAt.localeCompare(left.savedAt));
+    const latestDraft = studentDrafts[0] ?? null;
+    const latestEvaluation = latestDraft?.evaluation ?? null;
+    const score = latestEvaluation?.totalScore ?? 0;
+    return { ...profile, difficulty: score, status: getRiskStatus(score, profile.gpa), latestEvaluation, activeDraft: latestDraft };
+  });
+}
+export function getRiskStatus(score: number, gpa: number): RiskStatus { if (score >= 75 || (score >= 68 && gpa < 3.1)) return 'at-risk'; if (score >= 50 || (score >= 42 && gpa < 3.25)) return 'monitor'; return 'good'; }
+
+
+
