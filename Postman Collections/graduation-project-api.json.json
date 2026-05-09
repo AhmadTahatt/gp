@@ -1545,7 +1545,7 @@
 		},
 		{
 			"key": "anon_key",
-			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpzdm91cGRzcXZxcXVtcmttcWlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MjU2ODksImV4cCI6MjA4OTAwMTY4OX0.MBxO_H_KOUSX7BzhwKe2q_dB8QCZVC63gs_uHgUqgAE"
+			"value": "{{vault:supabase-anon-api-key}}"
 		},
 		{
 			"key": "student_token",
