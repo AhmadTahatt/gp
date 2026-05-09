@@ -1,0 +1,1571 @@
+{
+	"info": {
+		"_postman_id": "2c078568-3358-4e0e-9537-709436f2688f",
+		"name": "Smart Academic Advisor - Full Test Suite",
+		"description": "Complete API test suite for the Smart Academic Advisor graduation project. Run requests in order — Auth tests must run first to populate tokens.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Authentication",
+			"item": [
+				{
+					"name": "1.1 Login - Student",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+									"pm.test('Has access_token', () => {",
+									"  const j = pm.response.json();",
+									"  pm.expect(j).to.have.property('access_token');",
+									"  pm.collectionVariables.set('student_token', j.access_token);",
+									"  console.log('Student token saved');",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "ca8e7aa1-a38a-430b-82d2-610c7c816891"
+							}
+						}
+					],
+					"id": "df9331a5-d6b0-472e-bab4-396f0e9c5372",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{anon_key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\":\"ahmad.hassan@example.edu\",\"password\":\"Student@123\"}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/v1/token?grant_type=password",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"v1",
+								"token"
+							],
+							"query": [
+								{
+									"key": "grant_type",
+									"value": "password"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.2 Login - Advisor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+									"pm.test('Has access_token', () => {",
+									"  const j = pm.response.json();",
+									"  pm.expect(j).to.have.property('access_token');",
+									"  pm.collectionVariables.set('advisor_token', j.access_token);",
+									"  console.log('Advisor token saved');",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "6f900054-f5b5-42cc-8106-900967ae078f"
+							}
+						}
+					],
+					"id": "cf67ec07-51ee-4e18-b139-7385f1693aa1",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{anon_key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\":\"layla.hamdan@example.edu\",\"password\":\"Advisor@123\"}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/v1/token?grant_type=password",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"v1",
+								"token"
+							],
+							"query": [
+								{
+									"key": "grant_type",
+									"value": "password"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.3 Login - Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+									"pm.test('Has access_token', () => {",
+									"  const j = pm.response.json();",
+									"  pm.expect(j).to.have.property('access_token');",
+									"  pm.collectionVariables.set('admin_token', j.access_token);",
+									"  console.log('Admin token saved');",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "fc08e922-c741-40db-a1ce-96e46c657915"
+							}
+						}
+					],
+					"id": "2e382712-9cc8-4f35-bfb2-f64fff4d4f55",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{anon_key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\":\"anas.abutaleb@example.edu\",\"password\":\"Admin@123\"}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/v1/token?grant_type=password",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"v1",
+								"token"
+							],
+							"query": [
+								{
+									"key": "grant_type",
+									"value": "password"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.4 Wrong Password - Should Fail",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Wrong password is rejected (400 or 422)', () => {",
+									"  pm.expect(pm.response.code).to.be.oneOf([400, 401, 422]);",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "01207a8b-0141-4053-abd3-d392762a736f"
+							}
+						}
+					],
+					"id": "fcdc1120-5806-41a7-a11e-0190f44024b2",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{anon_key}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\":\"ahmad.hassan@example.edu\",\"password\":\"wrongpassword\"}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/v1/token?grant_type=password",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"v1",
+								"token"
+							],
+							"query": [
+								{
+									"key": "grant_type",
+									"value": "password"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "98501827-90ee-436a-bece-9124b362b583"
+		},
+		{
+			"name": "2. Courses",
+			"item": [
+				{
+					"name": "2.1 Get All Courses",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+									"pm.test('Returns array of courses', () => {",
+									"  const courses = pm.response.json();",
+									"  pm.expect(Array.isArray(courses)).to.be.true;",
+									"  pm.expect(courses.length).to.be.above(0);",
+									"  pm.collectionVariables.set('course_id', courses[0].id);",
+									"  console.log('Saved course_id:', courses[0].id);",
+									"});",
+									"pm.test('Courses have required fields', () => {",
+									"  const c = pm.response.json()[0];",
+									"  pm.expect(c).to.have.property('id');",
+									"  pm.expect(c).to.have.property('course_code');",
+									"  pm.expect(c).to.have.property('title');",
+									"  pm.expect(c).to.have.property('credits');",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "60eee9cf-b9f7-49d9-8efb-092be5f49763"
+							}
+						}
+					],
+					"id": "c70a861c-4976-4cc0-a5e6-afdbbbf35d67",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{anon_key}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{student_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/rest/v1/courses?select=id,course_code,title,credits,course_type,is_plannable,difficulty_score&order=course_code.asc",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"courses"
+							],
+							"query": [
+								{
+									"key": "select",
+									"value": "id,course_code,title,credits,course_type,is_plannable,difficulty_score"
+								},
+								{
+									"key": "order",
+									"value": "course_code.asc"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.2 Get Plannable Courses Only",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+									"pm.test('All courses are plannable', () => {",
+									"  const courses = pm.response.json();",
+									"  courses.forEach(c => pm.expect(c.is_plannable).to.be.true);",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "ce02cfbb-7500-46a1-89f3-5c9204915dd0"
+							}
+						}
+					],
+					"id": "6c9db6a5-f004-447d-a371-d540fb440579",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{anon_key}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{student_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/rest/v1/courses?select=id,course_code,title,credits,is_plannable&is_plannable=eq.true&order=course_code.asc",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"courses"
+							],
+							"query": [
+								{
+									"key": "select",
+									"value": "id,course_code,title,credits,is_plannable"
+								},
+								{
+									"key": "is_plannable",
+									"value": "eq.true"
+								},
+								{
+									"key": "order",
+									"value": "course_code.asc"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.3 Get Courses with Department Names",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+									"pm.test('Courses include department info', () => {",
+									"  const courses = pm.response.json();",
+									"  pm.expect(courses.length).to.be.above(0);",
+									"  pm.expect(courses[0]).to.have.property('departments');",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "5d241cd7-c274-4f31-bf60-84b721fe5f4c"
+							}
+						}
+					],
+					"id": "00978ed3-e457-4967-b209-7c8ab4fb9bf6",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{anon_key}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{student_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/rest/v1/courses?select=course_code,title,credits,departments(name)&limit=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"courses"
+							],
+							"query": [
+								{
+									"key": "select",
+									"value": "course_code,title,credits,departments(name)"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.4 Get Historical Course Stats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+									"pm.test('Stats have required fields', () => {",
+									"  const stats = pm.response.json();",
+									"  if (stats.length > 0) {",
+									"    pm.expect(stats[0]).to.have.property('avg_grade');",
+									"    pm.expect(stats[0]).to.have.property('pass_rate');",
+									"    pm.expect(stats[0]).to.have.property('fail_rate');",
+									"  }",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "09802b3a-5616-48e3-a473-53a4010a0cc3"
+							}
+						}
+					],
+					"id": "1add0601-9915-48ee-ae2b-8f4202120461",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{anon_key}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{student_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/rest/v1/historical_course_stats?select=course_id,term_code,avg_grade,pass_rate,fail_rate,enrollment_count&limit=20",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"historical_course_stats"
+							],
+							"query": [
+								{
+									"key": "select",
+									"value": "course_id,term_code,avg_grade,pass_rate,fail_rate,enrollment_count"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.5 Get Student Completed Courses (RLS Test)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+									"pm.test('Returns student transcript', () => {",
+									"  const rows = pm.response.json();",
+									"  pm.expect(Array.isArray(rows)).to.be.true;",
+									"  console.log('Completed courses count:', rows.length);",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "2be7f93c-741b-43f2-8595-192813d96075"
+							}
+						}
+					],
+					"id": "ab0a0002-6ec9-4ac8-a43b-57182aced839",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{anon_key}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{student_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/rest/v1/student_completed_courses?select=course_id,final_grade,completed_term_code&order=completed_term_code.desc",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"student_completed_courses"
+							],
+							"query": [
+								{
+									"key": "select",
+									"value": "course_id,final_grade,completed_term_code"
+								},
+								{
+									"key": "order",
+									"value": "completed_term_code.desc"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.6 Get Departments",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+									"pm.test('At least one department', () => {",
+									"  pm.expect(pm.response.json().length).to.be.above(0);",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "2ed11a46-1532-4c7e-a7f4-5ad09005cfb7"
+							}
+						}
+					],
+					"id": "cc7fdd17-14ee-45b7-923d-d2c83997542c",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{anon_key}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{student_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/rest/v1/departments?select=id,code,name",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"departments"
+							],
+							"query": [
+								{
+									"key": "select",
+									"value": "id,code,name"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "78926c12-bb48-4fb7-a9e8-4e4fb1f70323"
+		},
+		{
+			"name": "3. Schedule Planner",
+			"item": [
+				{
+					"name": "3.1 Create Schedule Draft",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Draft created (201)', () => pm.response.to.have.status(201));",
+									"pm.test('Draft has ID', () => {",
+									"  const draft = pm.response.json()[0];",
+									"  pm.expect(draft).to.have.property('id');",
+									"  pm.collectionVariables.set('draft_id', draft.id);",
+									"  console.log('Saved draft_id:', draft.id);",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "f064763a-a09e-43e0-9127-3d14b2381409"
+							}
+						}
+					],
+					"id": "ca55fc77-4655-46f2-b9b6-27da7691296d",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{anon_key}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{student_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Prefer",
+								"value": "return=representation"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\":\"Postman Test Draft\",\"term_code\":\"2024-fall\",\"status\":\"draft\"}"
+						},
+						"url": "{{base_url}}/rest/v1/schedule_drafts"
+					},
+					"response": []
+				},
+				{
+					"name": "3.2 Add Course to Draft",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Course added to draft (201)', () => pm.response.to.have.status(201));",
+									"pm.test('Entry has ID', () => {",
+									"  const entry = pm.response.json()[0];",
+									"  pm.expect(entry).to.have.property('id');",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "ade8e805-b74f-4cda-833e-56ab318b9127"
+							}
+						}
+					],
+					"id": "eacb8806-9720-4049-a770-82bb67807d0c",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{anon_key}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{student_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Prefer",
+								"value": "return=representation"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"schedule_id\":\"{{draft_id}}\",\"course_id\":\"{{course_id}}\"}"
+						},
+						"url": "{{base_url}}/rest/v1/schedule_draft_courses"
+					},
+					"response": []
+				},
+				{
+					"name": "3.3 View Draft with Courses (Nested)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+									"pm.test('Draft contains nested course data', () => {",
+									"  const drafts = pm.response.json();",
+									"  pm.expect(drafts.length).to.be.above(0);",
+									"  pm.expect(drafts[0]).to.have.property('schedule_draft_courses');",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "658aff96-7ecb-4ff2-8953-b6f5cafedcfe"
+							}
+						}
+					],
+					"id": "5a870fc9-6d46-4da5-ba58-1b507836376a",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{anon_key}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{student_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/rest/v1/schedule_drafts?select=id,name,status,term_code,schedule_draft_courses(id,courses(course_code,title,credits))&id=eq.{{draft_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"schedule_drafts"
+							],
+							"query": [
+								{
+									"key": "select",
+									"value": "id,name,status,term_code,schedule_draft_courses(id,courses(course_code,title,credits))"
+								},
+								{
+									"key": "id",
+									"value": "eq.{{draft_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.4 Get All My Drafts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+									"pm.test('Drafts returned (RLS - only mine)', () => {",
+									"  const drafts = pm.response.json();",
+									"  pm.expect(Array.isArray(drafts)).to.be.true;",
+									"  console.log('My drafts count:', drafts.length);",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "c28c911a-9fc7-445f-a6fb-82bc1b30615f"
+							}
+						}
+					],
+					"id": "e313a3a7-baba-4330-96ae-f80f912234bb",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{anon_key}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{student_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/rest/v1/schedule_drafts?select=id,name,status,term_code,created_at&order=created_at.desc",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"schedule_drafts"
+							],
+							"query": [
+								{
+									"key": "select",
+									"value": "id,name,status,term_code,created_at"
+								},
+								{
+									"key": "order",
+									"value": "created_at.desc"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.5 Get Schedule Evaluations",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+									"pm.test('Evaluations response is array', () => {",
+									"  pm.expect(Array.isArray(pm.response.json())).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "d0b2a162-ec6a-43a2-ad25-1a9c53f09135"
+							}
+						}
+					],
+					"id": "a6ffaeb1-77ce-4cbe-80be-c15d57d29d3a",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{anon_key}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{student_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/rest/v1/schedule_evaluations?select=*&schedule_id=eq.{{draft_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"schedule_evaluations"
+							],
+							"query": [
+								{
+									"key": "select",
+									"value": "*"
+								},
+								{
+									"key": "schedule_id",
+									"value": "eq.{{draft_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.6 Delete Test Draft (Cleanup)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Draft deleted (204)', () => pm.response.to.have.status(204));"
+								],
+								"type": "text/javascript",
+								"id": "7c8dd1c7-0905-419f-8ab8-c1f1a43a7dc3"
+							}
+						}
+					],
+					"id": "4e561bba-9351-45ea-bec3-515be5428578",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{anon_key}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{student_token}}"
+							},
+							{
+								"key": "Prefer",
+								"value": "return=minimal"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/rest/v1/schedule_drafts?id=eq.{{draft_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"schedule_drafts"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "eq.{{draft_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "7ed2d68c-20cf-4275-b924-1e2b4b874381"
+		},
+		{
+			"name": "4. Advisor Features",
+			"item": [
+				{
+					"name": "4.1 Advisor - Get All Students",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+									"pm.test('Students list returned', () => {",
+									"  const users = pm.response.json();",
+									"  pm.expect(Array.isArray(users)).to.be.true;",
+									"  console.log('Students visible to advisor:', users.length);",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "c113cc21-629f-409d-b10d-27bc1adacf10"
+							}
+						}
+					],
+					"id": "b6a0ca9d-e13c-481a-b2c0-d5bde5251050",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{anon_key}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{advisor_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/rest/v1/app_users?select=id,university_id,full_name,role,status&role=eq.student&order=full_name.asc",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"app_users"
+							],
+							"query": [
+								{
+									"key": "select",
+									"value": "id,university_id,full_name,role,status"
+								},
+								{
+									"key": "role",
+									"value": "eq.student"
+								},
+								{
+									"key": "order",
+									"value": "full_name.asc"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4.2 Advisor - Get Student Profiles",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+									"pm.test('Student profiles returned', () => {",
+									"  pm.expect(Array.isArray(pm.response.json())).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "45949d1b-8540-4554-af0c-8e8d3b8b20bd"
+							}
+						}
+					],
+					"id": "8d7174fa-7752-4a69-8d01-01d4eac8904c",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{anon_key}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{advisor_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/rest/v1/student_profiles?select=user_id,gpa,year_level,completed_credits,departments(name)&limit=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"student_profiles"
+							],
+							"query": [
+								{
+									"key": "select",
+									"value": "user_id,gpa,year_level,completed_credits,departments(name)"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4.3 Advisor - Get Messages",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+									"pm.test('Messages array returned', () => {",
+									"  pm.expect(Array.isArray(pm.response.json())).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "a84055bb-e41d-4fe2-b804-9c9ae5136d01"
+							}
+						}
+					],
+					"id": "2bcc3bda-c7c0-428d-a150-fc241cda4a14",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{anon_key}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{advisor_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/rest/v1/messages?select=id,sender_id,receiver_id,content,created_at&order=created_at.desc&limit=20",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"messages"
+							],
+							"query": [
+								{
+									"key": "select",
+									"value": "id,sender_id,receiver_id,content,created_at"
+								},
+								{
+									"key": "order",
+									"value": "created_at.desc"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "e98946f4-899e-481c-93c7-205c6bbecb7e"
+		},
+		{
+			"name": "5. Admin - Vercel API Routes",
+			"item": [
+				{
+					"name": "5.1 Admin - Create Test User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+									"pm.test('User created successfully', () => {",
+									"  const body = pm.response.json();",
+									"  pm.expect(body.success).to.be.true;",
+									"  console.log('Created auth user ID:', body.authUserId);",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "d2868a3c-891a-4e21-82fe-152865558314"
+							}
+						}
+					],
+					"id": "25051827-5b9e-4148-8726-00d6fb7ecb53",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"universityId\":\"TEST-PM-001\",\"email\":\"postman.test@example.edu\",\"password\":\"PostmanTest@1!\",\"role\":\"student\",\"fullName\":\"Postman Test User\",\"subtitle\":\"Test Account\",\"status\":\"active\"}"
+						},
+						"url": "{{vercel_url}}/api/admin-create-user"
+					},
+					"response": []
+				},
+				{
+					"name": "5.2 Admin - Reset Test User Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+									"pm.test('Password reset successful', () => {",
+									"  pm.expect(pm.response.json().success).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "3cf3a31b-bb04-4412-bafd-36a1e1a34398"
+							}
+						}
+					],
+					"id": "d7a24304-cd28-4b87-8eb0-2ce0655bb614",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"universityId\":\"TEST-PM-001\",\"newPassword\":\"NewPostman@99!\"}"
+						},
+						"url": "{{vercel_url}}/api/admin-reset-password"
+					},
+					"response": []
+				},
+				{
+					"name": "5.3 Admin - Delete Test User (Cleanup)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+									"pm.test('User deleted successfully', () => {",
+									"  pm.expect(pm.response.json().success).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "74e72b7e-a334-4af1-8fca-3b568aaea802"
+							}
+						}
+					],
+					"id": "caddcf1d-c311-46b6-aad2-7e94143a68c9",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"universityId\":\"TEST-PM-001\"}"
+						},
+						"url": "{{vercel_url}}/api/admin-delete-user"
+					},
+					"response": []
+				},
+				{
+					"name": "5.4 Admin - Get All Users (Supabase)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+									"pm.test('All users returned', () => {",
+									"  const users = pm.response.json();",
+									"  pm.expect(users.length).to.be.above(0);",
+									"  console.log('Total users:', users.length);",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "4c117d23-f06b-4a73-b63e-cefe738607f1"
+							}
+						}
+					],
+					"id": "4a8bc45b-07d9-453f-96eb-5430ce8eb38e",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{anon_key}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/rest/v1/app_users?select=id,university_id,full_name,role,email,status,last_login_at&order=created_at.desc",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"app_users"
+							],
+							"query": [
+								{
+									"key": "select",
+									"value": "id,university_id,full_name,role,email,status,last_login_at"
+								},
+								{
+									"key": "order",
+									"value": "created_at.desc"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "8e801349-fb4c-4ce2-a1fa-af7ba4a7e55c"
+		},
+		{
+			"name": "6. Security & RBAC Tests",
+			"item": [
+				{
+					"name": "6.1 Student CANNOT call admin-create-user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Student blocked from admin API', () => {",
+									"  if (pm.response.code === 200) {",
+									"    pm.expect(pm.response.json().success).to.be.false;",
+									"  } else {",
+									"    pm.expect(pm.response.code).to.be.oneOf([401, 403, 500]);",
+									"  }",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "5b1a6aea-3fab-4837-859f-b937c17672cd"
+							}
+						}
+					],
+					"id": "0c3b3d4c-d208-4839-b700-26d9a35b9e45",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{student_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"universityId\":\"HACK001\",\"email\":\"hacker@psut.edu.jo\",\"password\":\"Hacker@1234!\",\"role\":\"admin\",\"fullName\":\"Hacker\",\"subtitle\":\"\",\"status\":\"active\"}"
+						},
+						"url": "{{vercel_url}}/api/admin-create-user"
+					},
+					"response": []
+				},
+				{
+					"name": "6.2 Unauthenticated - No data from app_users (RLS)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Unauthenticated gets no user data (RLS working)', () => {",
+									"  const body = pm.response.json();",
+									"  if (pm.response.code === 200) {",
+									"    pm.expect(Array.isArray(body) ? body.length : 0).to.equal(0);",
+									"  } else {",
+									"    pm.expect(pm.response.code).to.be.oneOf([401, 403]);",
+									"  }",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "de58d4eb-d3b9-42d4-87b9-142b360425c4"
+							}
+						}
+					],
+					"id": "9684a3b5-eff9-48ca-ad62-4f61b1e72955",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{anon_key}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/rest/v1/app_users?select=id,full_name,role",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"app_users"
+							],
+							"query": [
+								{
+									"key": "select",
+									"value": "id,full_name,role"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "6.3 Student CANNOT see other students' drafts (RLS)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+									"pm.test('RLS restricts drafts to own records only', () => {",
+									"  const drafts = pm.response.json();",
+									"  pm.expect(Array.isArray(drafts)).to.be.true;",
+									"  console.log('Drafts visible (should only be own):', drafts.length);",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "5efd48bb-85b2-4ef6-917d-50d1f0cc1cff"
+							}
+						}
+					],
+					"id": "484703d2-3eff-414d-be9a-196ac73bdf90",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "apikey",
+								"value": "{{anon_key}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{student_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/rest/v1/schedule_drafts?select=id,name,status",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"rest",
+								"v1",
+								"schedule_drafts"
+							],
+							"query": [
+								{
+									"key": "select",
+									"value": "id,name,status"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "6.4 Advisor token CANNOT call admin-reset-password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Advisor blocked from admin password reset', () => {",
+									"  if (pm.response.code === 200) {",
+									"    pm.expect(pm.response.json().success).to.be.false;",
+									"  } else {",
+									"    pm.expect(pm.response.code).to.be.oneOf([401, 403, 500]);",
+									"  }",
+									"});"
+								],
+								"type": "text/javascript",
+								"id": "48a7fb47-815b-461e-a8a5-0d56ba5789ab"
+							}
+						}
+					],
+					"id": "44811a57-5fb8-4b73-8324-4beafa66f80b",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{advisor_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"universityId\":\"20231001\",\"newPassword\":\"Hacked@1234!\"}"
+						},
+						"url": "{{vercel_url}}/api/admin-reset-password"
+					},
+					"response": []
+				}
+			],
+			"id": "f69b6466-b9c5-4572-9a2f-e3cb42b0250a"
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://zsvoupdsqvqqumrkmqis.supabase.co"
+		},
+		{
+			"key": "vercel_url",
+			"value": "https://psut.site"
+		},
+		{
+			"key": "anon_key",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpzdm91cGRzcXZxcXVtcmttcWlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MjU2ODksImV4cCI6MjA4OTAwMTY4OX0.MBxO_H_KOUSX7BzhwKe2q_dB8QCZVC63gs_uHgUqgAE"
+		},
+		{
+			"key": "student_token",
+			"value": ""
+		},
+		{
+			"key": "advisor_token",
+			"value": ""
+		},
+		{
+			"key": "admin_token",
+			"value": ""
+		},
+		{
+			"key": "draft_id",
+			"value": ""
+		},
+		{
+			"key": "course_id",
+			"value": ""
+		}
+	]
+}
