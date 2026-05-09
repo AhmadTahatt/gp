@@ -1,0 +1,997 @@
+{
+	"id": "bc1af3fc-9b00-49fa-8045-6f88e9cfa99e",
+	"name": "Smart Academic Advisor - Full Test Suite",
+	"timestamp": "2026-05-09T20:26:45.927Z",
+	"collection_id": "52133906-2c078568-3358-4e0e-9537-709436f2688f",
+	"folder_id": 0,
+	"environment_id": "0",
+	"totalPass": 33,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2026-05-09T20:26:22.277Z",
+	"totalFail": 17,
+	"results": [
+		{
+			"id": "df9331a5-d6b0-472e-bab4-396f0e9c5372",
+			"name": "1.1 Login - Student",
+			"url": "https://zsvoupdsqvqqumrkmqis.supabase.co/auth/v1/token?grant_type=password",
+			"time": 1194,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200 OK": true,
+				"Has access_token": true
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Has access_token": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				1194
+			],
+			"allTests": [
+				{
+					"Status 200 OK": true,
+					"Has access_token": true
+				}
+			]
+		},
+		{
+			"id": "cf67ec07-51ee-4e18-b139-7385f1693aa1",
+			"name": "1.2 Login - Advisor",
+			"url": "https://zsvoupdsqvqqumrkmqis.supabase.co/auth/v1/token?grant_type=password",
+			"time": 379,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200 OK": true,
+				"Has access_token": true
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Has access_token": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				379
+			],
+			"allTests": [
+				{
+					"Status 200 OK": true,
+					"Has access_token": true
+				}
+			]
+		},
+		{
+			"id": "2e382712-9cc8-4f35-bfb2-f64fff4d4f55",
+			"name": "1.3 Login - Admin",
+			"url": "https://zsvoupdsqvqqumrkmqis.supabase.co/auth/v1/token?grant_type=password",
+			"time": 368,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200 OK": true,
+				"Has access_token": true
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Has access_token": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				368
+			],
+			"allTests": [
+				{
+					"Status 200 OK": true,
+					"Has access_token": true
+				}
+			]
+		},
+		{
+			"id": "fcdc1120-5806-41a7-a11e-0190f44024b2",
+			"name": "1.4 Wrong Password - Should Fail",
+			"url": "https://zsvoupdsqvqqumrkmqis.supabase.co/auth/v1/token?grant_type=password",
+			"time": 366,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Wrong password is rejected (400 or 422)": true
+			},
+			"testPassFailCounts": {
+				"Wrong password is rejected (400 or 422)": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				366
+			],
+			"allTests": [
+				{
+					"Wrong password is rejected (400 or 422)": true
+				}
+			]
+		},
+		{
+			"id": "c70a861c-4976-4cc0-a5e6-afdbbbf35d67",
+			"name": "2.1 Get All Courses",
+			"url": "https://zsvoupdsqvqqumrkmqis.supabase.co/rest/v1/courses?select=id,course_code,title,credits,course_type,is_plannable,difficulty_score&order=course_code.asc",
+			"time": 667,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200 OK": true,
+				"Returns array of courses": true,
+				"Courses have required fields": true
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Returns array of courses": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Courses have required fields": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				667
+			],
+			"allTests": [
+				{
+					"Status 200 OK": true,
+					"Returns array of courses": true,
+					"Courses have required fields": true
+				}
+			]
+		},
+		{
+			"id": "6c9db6a5-f004-447d-a371-d540fb440579",
+			"name": "2.2 Get Plannable Courses Only",
+			"url": "https://zsvoupdsqvqqumrkmqis.supabase.co/rest/v1/courses?select=id,course_code,title,credits,is_plannable&is_plannable=eq.true&order=course_code.asc",
+			"time": 342,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200 OK": true,
+				"All courses are plannable": true
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 1,
+					"fail": 0
+				},
+				"All courses are plannable": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				342
+			],
+			"allTests": [
+				{
+					"Status 200 OK": true,
+					"All courses are plannable": true
+				}
+			]
+		},
+		{
+			"id": "00978ed3-e457-4967-b209-7c8ab4fb9bf6",
+			"name": "2.3 Get Courses with Department Names",
+			"url": "https://zsvoupdsqvqqumrkmqis.supabase.co/rest/v1/courses?select=course_code,title,credits,departments(name)&limit=10",
+			"time": 370,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200 OK": true,
+				"Courses include department info": true
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Courses include department info": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				370
+			],
+			"allTests": [
+				{
+					"Status 200 OK": true,
+					"Courses include department info": true
+				}
+			]
+		},
+		{
+			"id": "1add0601-9915-48ee-ae2b-8f4202120461",
+			"name": "2.4 Get Historical Course Stats",
+			"url": "https://zsvoupdsqvqqumrkmqis.supabase.co/rest/v1/historical_course_stats?select=course_id,term_code,avg_grade,pass_rate,fail_rate,enrollment_count&limit=20",
+			"time": 308,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200 OK": true,
+				"Stats have required fields": true
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Stats have required fields": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				308
+			],
+			"allTests": [
+				{
+					"Status 200 OK": true,
+					"Stats have required fields": true
+				}
+			]
+		},
+		{
+			"id": "ab0a0002-6ec9-4ac8-a43b-57182aced839",
+			"name": "2.5 Get Student Completed Courses (RLS Test)",
+			"url": "https://zsvoupdsqvqqumrkmqis.supabase.co/rest/v1/student_completed_courses?select=course_id,final_grade,completed_term_code&order=completed_term_code.desc",
+			"time": 352,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status 200 OK": false,
+				"Returns student transcript": false
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Returns student transcript": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				352
+			],
+			"allTests": [
+				{
+					"Status 200 OK": false,
+					"Returns student transcript": false
+				}
+			]
+		},
+		{
+			"id": "cc7fdd17-14ee-45b7-923d-d2c83997542c",
+			"name": "2.6 Get Departments",
+			"url": "https://zsvoupdsqvqqumrkmqis.supabase.co/rest/v1/departments?select=id,code,name",
+			"time": 295,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200 OK": true,
+				"At least one department": true
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 1,
+					"fail": 0
+				},
+				"At least one department": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				295
+			],
+			"allTests": [
+				{
+					"Status 200 OK": true,
+					"At least one department": true
+				}
+			]
+		},
+		{
+			"id": "ca55fc77-4655-46f2-b9b6-27da7691296d",
+			"name": "3.1 Create Schedule Draft",
+			"url": "https://zsvoupdsqvqqumrkmqis.supabase.co/rest/v1/schedule_drafts",
+			"time": 305,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Draft created (201)": false,
+				"Draft has ID": false
+			},
+			"testPassFailCounts": {
+				"Draft created (201)": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Draft has ID": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				305
+			],
+			"allTests": [
+				{
+					"Draft created (201)": false,
+					"Draft has ID": false
+				}
+			]
+		},
+		{
+			"id": "eacb8806-9720-4049-a770-82bb67807d0c",
+			"name": "3.2 Add Course to Draft",
+			"url": "https://zsvoupdsqvqqumrkmqis.supabase.co/rest/v1/schedule_draft_courses",
+			"time": 284,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Course added to draft (201)": false,
+				"Entry has ID": false
+			},
+			"testPassFailCounts": {
+				"Course added to draft (201)": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Entry has ID": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				284
+			],
+			"allTests": [
+				{
+					"Course added to draft (201)": false,
+					"Entry has ID": false
+				}
+			]
+		},
+		{
+			"id": "5a870fc9-6d46-4da5-ba58-1b507836376a",
+			"name": "3.3 View Draft with Courses (Nested)",
+			"url": "https://zsvoupdsqvqqumrkmqis.supabase.co/rest/v1/schedule_drafts?select=id,name,status,term_code,schedule_draft_courses(id,courses(course_code,title,credits))&id=eq.",
+			"time": 285,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 200 OK": false,
+				"Draft contains nested course data": false
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Draft contains nested course data": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				285
+			],
+			"allTests": [
+				{
+					"Status 200 OK": false,
+					"Draft contains nested course data": false
+				}
+			]
+		},
+		{
+			"id": "e313a3a7-baba-4330-96ae-f80f912234bb",
+			"name": "3.4 Get All My Drafts",
+			"url": "https://zsvoupdsqvqqumrkmqis.supabase.co/rest/v1/schedule_drafts?select=id,name,status,term_code,created_at&order=created_at.desc",
+			"time": 295,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200 OK": true,
+				"Drafts returned (RLS - only mine)": true
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Drafts returned (RLS - only mine)": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				295
+			],
+			"allTests": [
+				{
+					"Status 200 OK": true,
+					"Drafts returned (RLS - only mine)": true
+				}
+			]
+		},
+		{
+			"id": "a6ffaeb1-77ce-4cbe-80be-c15d57d29d3a",
+			"name": "3.5 Get Schedule Evaluations",
+			"url": "https://zsvoupdsqvqqumrkmqis.supabase.co/rest/v1/schedule_evaluations?select=*&schedule_id=eq.",
+			"time": 284,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 200 OK": false,
+				"Evaluations response is array": false
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Evaluations response is array": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				284
+			],
+			"allTests": [
+				{
+					"Status 200 OK": false,
+					"Evaluations response is array": false
+				}
+			]
+		},
+		{
+			"id": "4e561bba-9351-45ea-bec3-515be5428578",
+			"name": "3.6 Delete Test Draft (Cleanup)",
+			"url": "https://zsvoupdsqvqqumrkmqis.supabase.co/rest/v1/schedule_drafts?id=eq.",
+			"time": 289,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Draft deleted (204)": false
+			},
+			"testPassFailCounts": {
+				"Draft deleted (204)": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				289
+			],
+			"allTests": [
+				{
+					"Draft deleted (204)": false
+				}
+			]
+		},
+		{
+			"id": "b6a0ca9d-e13c-481a-b2c0-d5bde5251050",
+			"name": "4.1 Advisor - Get All Students",
+			"url": "https://zsvoupdsqvqqumrkmqis.supabase.co/rest/v1/app_users?select=id,university_id,full_name,role,status&role=eq.student&order=full_name.asc",
+			"time": 294,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200 OK": true,
+				"Students list returned": true
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Students list returned": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				294
+			],
+			"allTests": [
+				{
+					"Status 200 OK": true,
+					"Students list returned": true
+				}
+			]
+		},
+		{
+			"id": "8d7174fa-7752-4a69-8d01-01d4eac8904c",
+			"name": "4.2 Advisor - Get Student Profiles",
+			"url": "https://zsvoupdsqvqqumrkmqis.supabase.co/rest/v1/student_profiles?select=user_id,gpa,year_level,completed_credits,departments(name)&limit=10",
+			"time": 287,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200 OK": true,
+				"Student profiles returned": true
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Student profiles returned": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				287
+			],
+			"allTests": [
+				{
+					"Status 200 OK": true,
+					"Student profiles returned": true
+				}
+			]
+		},
+		{
+			"id": "2bcc3bda-c7c0-428d-a150-fc241cda4a14",
+			"name": "4.3 Advisor - Get Messages",
+			"url": "https://zsvoupdsqvqqumrkmqis.supabase.co/rest/v1/messages?select=id,sender_id,receiver_id,content,created_at&order=created_at.desc&limit=20",
+			"time": 295,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 200 OK": false,
+				"Messages array returned": false
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Messages array returned": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				295
+			],
+			"allTests": [
+				{
+					"Status 200 OK": false,
+					"Messages array returned": false
+				}
+			]
+		},
+		{
+			"id": "25051827-5b9e-4148-8726-00d6fb7ecb53",
+			"name": "5.1 Admin - Create Test User",
+			"url": "https://psut.site/api/admin-create-user",
+			"time": 6952,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200 OK": true,
+				"User created successfully": true
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 1,
+					"fail": 0
+				},
+				"User created successfully": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				6952
+			],
+			"allTests": [
+				{
+					"Status 200 OK": true,
+					"User created successfully": true
+				}
+			]
+		},
+		{
+			"id": "d7a24304-cd28-4b87-8eb0-2ce0655bb614",
+			"name": "5.2 Admin - Reset Test User Password",
+			"url": "https://psut.site/api/admin-reset-password",
+			"time": 562,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 200 OK": false,
+				"Password reset successful": false
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Password reset successful": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				562
+			],
+			"allTests": [
+				{
+					"Status 200 OK": false,
+					"Password reset successful": false
+				}
+			]
+		},
+		{
+			"id": "caddcf1d-c311-46b6-aad2-7e94143a68c9",
+			"name": "5.3 Admin - Delete Test User (Cleanup)",
+			"url": "https://psut.site/api/admin-delete-user",
+			"time": 3226,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200 OK": true,
+				"User deleted successfully": true
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 1,
+					"fail": 0
+				},
+				"User deleted successfully": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				3226
+			],
+			"allTests": [
+				{
+					"Status 200 OK": true,
+					"User deleted successfully": true
+				}
+			]
+		},
+		{
+			"id": "4a8bc45b-07d9-453f-96eb-5430ce8eb38e",
+			"name": "5.4 Admin - Get All Users (Supabase)",
+			"url": "https://zsvoupdsqvqqumrkmqis.supabase.co/rest/v1/app_users?select=id,university_id,full_name,role,email,status,last_login_at&order=created_at.desc",
+			"time": 332,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200 OK": true,
+				"All users returned": true
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 1,
+					"fail": 0
+				},
+				"All users returned": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				332
+			],
+			"allTests": [
+				{
+					"Status 200 OK": true,
+					"All users returned": true
+				}
+			]
+		},
+		{
+			"id": "0c3b3d4c-d208-4839-b700-26d9a35b9e45",
+			"name": "6.1 Student CANNOT call admin-create-user",
+			"url": "https://psut.site/api/admin-create-user",
+			"time": 1894,
+			"responseCode": {
+				"code": 500,
+				"name": "Internal Server Error"
+			},
+			"tests": {
+				"Student blocked from admin API": true
+			},
+			"testPassFailCounts": {
+				"Student blocked from admin API": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				1894
+			],
+			"allTests": [
+				{
+					"Student blocked from admin API": true
+				}
+			]
+		},
+		{
+			"id": "9684a3b5-eff9-48ca-ad62-4f61b1e72955",
+			"name": "6.2 Unauthenticated - No data from app_users (RLS)",
+			"url": "https://zsvoupdsqvqqumrkmqis.supabase.co/rest/v1/app_users?select=id,full_name,role",
+			"time": 294,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Unauthenticated gets no user data (RLS working)": false
+			},
+			"testPassFailCounts": {
+				"Unauthenticated gets no user data (RLS working)": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				294
+			],
+			"allTests": [
+				{
+					"Unauthenticated gets no user data (RLS working)": false
+				}
+			]
+		},
+		{
+			"id": "484703d2-3eff-414d-be9a-196ac73bdf90",
+			"name": "6.3 Student CANNOT see other students' drafts (RLS)",
+			"url": "https://zsvoupdsqvqqumrkmqis.supabase.co/rest/v1/schedule_drafts?select=id,name,status",
+			"time": 287,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200 OK": true,
+				"RLS restricts drafts to own records only": true
+			},
+			"testPassFailCounts": {
+				"Status 200 OK": {
+					"pass": 1,
+					"fail": 0
+				},
+				"RLS restricts drafts to own records only": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				287
+			],
+			"allTests": [
+				{
+					"Status 200 OK": true,
+					"RLS restricts drafts to own records only": true
+				}
+			]
+		},
+		{
+			"id": "44811a57-5fb8-4b73-8324-4beafa66f80b",
+			"name": "6.4 Advisor token CANNOT call admin-reset-password",
+			"url": "https://psut.site/api/admin-reset-password",
+			"time": 323,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Advisor blocked from admin password reset": false
+			},
+			"testPassFailCounts": {
+				"Advisor blocked from admin password reset": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				323
+			],
+			"allTests": [
+				{
+					"Advisor blocked from admin password reset": false
+				}
+			]
+		}
+	],
+	"count": 1,
+	"totalTime": 21129,
+	"collection": {
+		"requests": [
+			{
+				"id": "df9331a5-d6b0-472e-bab4-396f0e9c5372",
+				"method": "POST"
+			},
+			{
+				"id": "cf67ec07-51ee-4e18-b139-7385f1693aa1",
+				"method": "POST"
+			},
+			{
+				"id": "2e382712-9cc8-4f35-bfb2-f64fff4d4f55",
+				"method": "POST"
+			},
+			{
+				"id": "fcdc1120-5806-41a7-a11e-0190f44024b2",
+				"method": "POST"
+			},
+			{
+				"id": "c70a861c-4976-4cc0-a5e6-afdbbbf35d67",
+				"method": "GET"
+			},
+			{
+				"id": "6c9db6a5-f004-447d-a371-d540fb440579",
+				"method": "GET"
+			},
+			{
+				"id": "00978ed3-e457-4967-b209-7c8ab4fb9bf6",
+				"method": "GET"
+			},
+			{
+				"id": "1add0601-9915-48ee-ae2b-8f4202120461",
+				"method": "GET"
+			},
+			{
+				"id": "ab0a0002-6ec9-4ac8-a43b-57182aced839",
+				"method": "GET"
+			},
+			{
+				"id": "cc7fdd17-14ee-45b7-923d-d2c83997542c",
+				"method": "GET"
+			},
+			{
+				"id": "ca55fc77-4655-46f2-b9b6-27da7691296d",
+				"method": "POST"
+			},
+			{
+				"id": "eacb8806-9720-4049-a770-82bb67807d0c",
+				"method": "POST"
+			},
+			{
+				"id": "5a870fc9-6d46-4da5-ba58-1b507836376a",
+				"method": "GET"
+			},
+			{
+				"id": "e313a3a7-baba-4330-96ae-f80f912234bb",
+				"method": "GET"
+			},
+			{
+				"id": "a6ffaeb1-77ce-4cbe-80be-c15d57d29d3a",
+				"method": "GET"
+			},
+			{
+				"id": "4e561bba-9351-45ea-bec3-515be5428578",
+				"method": "DELETE"
+			},
+			{
+				"id": "b6a0ca9d-e13c-481a-b2c0-d5bde5251050",
+				"method": "GET"
+			},
+			{
+				"id": "8d7174fa-7752-4a69-8d01-01d4eac8904c",
+				"method": "GET"
+			},
+			{
+				"id": "2bcc3bda-c7c0-428d-a150-fc241cda4a14",
+				"method": "GET"
+			},
+			{
+				"id": "25051827-5b9e-4148-8726-00d6fb7ecb53",
+				"method": "POST"
+			},
+			{
+				"id": "d7a24304-cd28-4b87-8eb0-2ce0655bb614",
+				"method": "POST"
+			},
+			{
+				"id": "caddcf1d-c311-46b6-aad2-7e94143a68c9",
+				"method": "POST"
+			},
+			{
+				"id": "4a8bc45b-07d9-453f-96eb-5430ce8eb38e",
+				"method": "GET"
+			},
+			{
+				"id": "0c3b3d4c-d208-4839-b700-26d9a35b9e45",
+				"method": "POST"
+			},
+			{
+				"id": "9684a3b5-eff9-48ca-ad62-4f61b1e72955",
+				"method": "GET"
+			},
+			{
+				"id": "484703d2-3eff-414d-be9a-196ac73bdf90",
+				"method": "GET"
+			},
+			{
+				"id": "44811a57-5fb8-4b73-8324-4beafa66f80b",
+				"method": "POST"
+			}
+		]
+	}
+}
