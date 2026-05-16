@@ -996,65 +996,6 @@
 						"url": "{{vercel_url}}/api/admin-delete-user"
 					},
 					"response": []
-				},
-				{
-					"name": "5.4 Admin - Get All Users (Supabase)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
-									"pm.test('All users returned', () => {",
-									"  const users = pm.response.json();",
-									"  pm.expect(users.length).to.be.above(0);",
-									"  console.log('Total users:', users.length);",
-									"});"
-								],
-								"type": "text/javascript",
-								"id": "4c117d23-f06b-4a73-b63e-cefe738607f1"
-							}
-						}
-					],
-					"id": "4a8bc45b-07d9-453f-96eb-5430ce8eb38e",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "apikey",
-								"value": "{{anon_key}}"
-							},
-							{
-								"key": "Authorization",
-								"value": "Bearer {{admin_token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/rest/v1/app_users?select=id,university_id,full_name,role,email,status,last_login_at&order=created_at.desc",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"rest",
-								"v1",
-								"app_users"
-							],
-							"query": [
-								{
-									"key": "select",
-									"value": "id,university_id,full_name,role,email,status,last_login_at"
-								},
-								{
-									"key": "order",
-									"value": "created_at.desc"
-								}
-							]
-						}
-					},
-					"response": []
 				}
 			],
 			"id": "8e801349-fb4c-4ce2-a1fa-af7ba4a7e55c"
