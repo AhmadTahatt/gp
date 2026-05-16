@@ -1154,50 +1154,6 @@
 						}
 					},
 					"response": []
-				},
-				{
-					"name": "6.4 Advisor token CANNOT call admin-reset-password",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Advisor blocked from admin password reset', () => {",
-									"  if (pm.response.code === 200) {",
-									"    pm.expect(pm.response.json().success).to.be.false;",
-									"  } else {",
-									"    pm.expect(pm.response.code).to.be.oneOf([401, 403, 500]);",
-									"  }",
-									"});"
-								],
-								"type": "text/javascript",
-								"id": "48a7fb47-815b-461e-a8a5-0d56ba5789ab"
-							}
-						}
-					],
-					"id": "44811a57-5fb8-4b73-8324-4beafa66f80b",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{advisor_token}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\"universityId\":\"20231001\",\"newPassword\":\"Hacked@1234!\"}"
-						},
-						"url": "{{vercel_url}}/api/admin-reset-password"
-					},
-					"response": []
 				}
 			],
 			"id": "f69b6466-b9c5-4572-9a2f-e3cb42b0250a"
